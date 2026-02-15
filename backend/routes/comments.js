@@ -12,4 +12,56 @@ router.get("/", (req, res) => {
     res.json(comments);
 })
 
+// create comment
+router.post("/", (req, res) => {
+    const { text, image = '' } = req.body;
+    const id = crypto.randomUUID();
+    const author = 'Admin';
+    const date = new Date().toISOString();
+    const likes = 0;
+
+    if (!text) return res.status(400).json({error: "Text required!"});
+
+    db.prepare(`
+        INSERT INTO comments (id, author, text, date, likes, image)
+        VALUES (?, ?, ?, ?, ?, ?)
+    `).run(id, author, text, date, likes, image);
+
+    res.status(201).json({id, author, text, date, likes, image});
+})
+
+
+// edit comment
+router.put("/:id", (req, res) => {
+    const { text } = req.body;
+
+    if (!text) return res.status(400).json({error: "Text required!"});
+
+    const stmt = db.prepare(
+        "UPDATE comments SET text = ? WHERE id = ?"
+    );
+
+    const result = stmt.run(text, req.params.id);
+
+    if (!result.changes) return res.status(404).json({error: "Not found!"});
+
+    const updated = db
+        .prepare("SELECT * FROM comments WHERE id = ?")
+        .get(req.params.id);
+
+    res.json(updated);
+})
+
+
+// delete comment
+router.delete("/:id", (req, res) => {
+    const result = db
+        .prepare("DELETE FROM comments WHERE id = ?")
+        .run(req.params.id);
+
+    if (!result.changes) return res.status(404).json({error: "Not found!"});
+
+    res.json({success: true});
+})
+
 module.exports = router;
