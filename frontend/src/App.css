@@ -3,3 +3,14 @@
   margin: 0 auto;
   padding: 2rem;
 }
+
+.comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.comment-author-info img {
+    width: 80px;
+    height: 80px;
+}
