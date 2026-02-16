@@ -66,7 +66,7 @@ function App() {
             onDelete={handleDelete}
             onUpdate={handleUpdate}
           />)
-      };
+      }
     </>
   )
 }

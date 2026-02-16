@@ -12,7 +12,6 @@ app.use("/comments", commentsRoutes);
 
 app.use("/", (req, res) => {
     res.send("Hi there! To see all comments add '/comments' to the above URL.");
-    next();
 });
 
 const PORT = 3005;

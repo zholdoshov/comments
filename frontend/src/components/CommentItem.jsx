@@ -40,7 +40,7 @@ export default function CommentItem({ comment, onDelete, onUpdate }) {
                         alt="User profile"
                     />
                     <p>{comment.author}</p>
-                    <p>{comment.date}</p>
+                    <p>{new Date(comment.date).toLocaleString()}</p>
                 </div>
 
                 <div className="comment-author-actions">

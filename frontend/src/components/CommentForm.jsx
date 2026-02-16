@@ -24,7 +24,6 @@ export default function CommentForm({ onAdd }) {
         <form className="form-container" onSubmit={handleAdd}>
             <div className="form-input">
                 <textarea
-                    type="text"
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     placeholder="Write a comment..."
