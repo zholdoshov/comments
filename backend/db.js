@@ -5,7 +5,7 @@ const db = new Database('comments.db');
 
 db.exec(`
     CREATE TABLE IF NOT EXISTS comments (
-        id TEXT PRIMARY KEY,
+        id INTEGER PRIMARY KEY,
         author TEXT NOT NULL,
         text TEXT NOT NULL,
         date DATETIME NOT NULL,
@@ -22,11 +22,11 @@ if (count.count === 0) {
 
     const insert = db.prepare(`
         INSERT INTO comments (id, author, text, date, likes, image)
-        VALUES (?, ?, ?, ?, ?, ?)    
+        VALUES (?, ?, ?, ?, ?, ?)
     `);
 
     for (const comment of comments) {
-        insert.run(comment.id, comment.author, comment.text, comment.date, comment.likes, comment.image);
+        insert.run(Number(comment.id), comment.author, comment.text, comment.date, comment.likes, comment.image);
     }
 
     console.log('Seeded initial comments');

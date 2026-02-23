@@ -5,8 +5,11 @@ const router = express.Router();
 
 // get all comments
 router.get("/", (req, res) => {
+    const { sort = 'date_desc' } = req.query;
+    const [sortBy, order] = sort.split('_');
+    
     const comments = db
-        .prepare("SELECT * FROM comments ORDER BY date DESC")
+        .prepare(`SELECT * FROM comments ORDER BY ${sortBy} ${order}`)
         .all();
 
     res.json(comments);
@@ -15,19 +18,20 @@ router.get("/", (req, res) => {
 // create comment
 router.post("/", (req, res) => {
     const { text, image = '' } = req.body;
-    const id = crypto.randomUUID();
     const author = 'Admin';
     const date = new Date().toISOString();
     const likes = 0;
 
     if (!text) return res.status(400).json({error: "Text required!"});
 
-    db.prepare(`
-        INSERT INTO comments (id, author, text, date, likes, image)
-        VALUES (?, ?, ?, ?, ?, ?)
-    `).run(id, author, text, date, likes, image);
+    const stmt = db.prepare(`
+        INSERT INTO comments (author, text, date, likes, image)
+        VALUES (?, ?, ?, ?, ?)
+    `);
 
-    res.status(201).json({id, author, text, date, likes, image});
+    const result = stmt.run(author, text, date, likes, image);
+
+    res.status(201).json({id: result.lastInsertRowid, author, text, date, likes, image});
 })
 
 

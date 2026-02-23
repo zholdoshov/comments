@@ -15,7 +15,11 @@ async function request(url, options = {}) {
 }
 
 // get all comments
-export async function getComments() {
+export async function getComments(sort) {
+    if (sort) {
+        return request(`${BASE_URL}?sort=${sort}`);
+    }
+
     return request(BASE_URL);
 }
 

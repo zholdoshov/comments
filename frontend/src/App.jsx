@@ -6,23 +6,30 @@ import CommentForm from './components/CommentForm';
 
 function App() {
   const [comments, setComments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [sortBy, setSortBy] = useState(() => localStorage.getItem('sortBy') || '');
+
+  async function fetchComments(sort) {
+    setLoading(true);
+    try {
+      const data = await getComments(sort);
+      setComments(data);
+    } catch (error) {
+      console.error("Failed to fetch comments", error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function fetchComments() {
-      try {
-        const data = await getComments();
-        setComments(data);
-      } catch (error) {
-        console.error("Failed to fetch comments", error);
-      }
-    }
-
-    fetchComments();
+    fetchComments(sortBy || undefined);
   }, []);
 
   async function handleAdd(text) {
     try {
       const newComment = await createComment(text);
+      console.log(newComment);
+
       setComments((prev) => [newComment, ...prev]);
     } catch (error) {
       console.error("Failed to create comment", error);
@@ -53,12 +60,29 @@ function App() {
     }
   }
 
+  async function handleSortSelect(e) {
+    const value = e.target.value;
+    setSortBy(value);
+    localStorage.setItem('sortBy', value);
+    await fetchComments(value);
+  }
+
   return (
     <>
       <h1>All comments</h1>
       <CommentForm onAdd={handleAdd} />
+      <div>
+        <label htmlFor="sort">Sort by</label>
+        <select id="sort" value={sortBy} onChange={handleSortSelect}>
+          <option value="" disabled>Select</option>
+          <option value="date_desc">Newest comments</option>
+          <option value="date_asc">Oldest comments</option>
+          <option value="id_asc">ID Asc</option>
+          <option value="id_desc">ID Desc</option>
+        </select>
+      </div>
       {
-        comments.length === 0 ? (
+        comments.length === 0 && loading ? (
           <p>No comments yet!</p>
         ) : (
           <CommentList
