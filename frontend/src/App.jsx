@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import './App.css'
 import { createComment, deleteComment, getComments, updateComment } from './api/comments';
+import { useSearchParams } from 'react-router-dom';
 import CommentList from './components/CommentList';
 import CommentForm from './components/CommentForm';
 
 function App() {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [sortBy, setSortBy] = useState(() => localStorage.getItem('sortBy') || '');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const sortBy = searchParams.get('sort') || '';
 
   async function fetchComments(sort) {
     setLoading(true);
@@ -61,9 +63,11 @@ function App() {
   }
 
   async function handleSortSelect(e) {
-    const value = e.target.value;
-    setSortBy(value);
-    localStorage.setItem('sortBy', value);
+    const { name, value } = e.target;
+    setSearchParams(prevParams => {
+      prevParams.set(name, value);
+      return prevParams;
+    })
     await fetchComments(value);
   }
 
@@ -73,7 +77,7 @@ function App() {
       <CommentForm onAdd={handleAdd} />
       <div>
         <label htmlFor="sort">Sort by</label>
-        <select id="sort" value={sortBy} onChange={handleSortSelect}>
+        <select name="sort" id="sort" value={sortBy} onChange={handleSortSelect}>
           <option value="" disabled>Select</option>
           <option value="date_desc">Newest comments</option>
           <option value="date_asc">Oldest comments</option>
